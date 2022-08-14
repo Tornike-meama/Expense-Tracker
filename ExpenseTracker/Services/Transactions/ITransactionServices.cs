@@ -10,5 +10,6 @@ namespace ExpenseTracker.Services.Transactions
     {
         public Task<IComonResponse<List<Transaction>>> GetAllTransactionAsync();
         public Task<IComonResponse<AddTransactionModel>> AddTransactionAsync(AddTransactionModel data);
+        public Task<IComonResponse<UpdateTransactionModel>> UpdateTransactionAsync(UpdateTransactionModel data);
     }
 }
