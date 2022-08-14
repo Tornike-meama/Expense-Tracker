@@ -1,9 +1,10 @@
 ﻿using ExpenseTracker.Model;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace ExpenseTracker.DbContexts
 {
-    public class MyDbContext : DbContext
+    public class MyDbContext : IdentityDbContext<ApplicationUser>
     {
 
         public MyDbContext(DbContextOptions<MyDbContext> options) : base(options)
