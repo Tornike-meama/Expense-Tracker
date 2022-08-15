@@ -92,6 +92,38 @@ namespace ExpenseTracker.Services.IdentityServices
             }
         }
 
+        public async Task<IComonResponse<GetUserModel>> GetuserDataAsync(string userId)
+        {
+            try
+            {
+                var user = await _dbContext.Users.FirstOrDefaultAsync(o => o.Id == userId);
+
+                if (user == null)
+                {
+                    return new BadRequest<GetUserModel>("Can't find user");
+                }
+
+                //List<string> userRoleIds = await _dbContext.UserRoles.Where(o => o.UserId == id).Select(o => o.RoleId).ToListAsync();
+
+
+                var res = new GetUserModel
+                {
+                    Id = user.Id,
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    EmailConfirmed = user.EmailConfirmed,
+                    PhoneNumber = user.PhoneNumber,
+                    PhoneNumberConfirmed = user.PhoneNumberConfirmed,
+                    //UserRoles = userRoleIds
+                };
+
+                return new ComonResponse<GetUserModel>(res);
+            }
+            catch (Exception ex)
+            {
+                return new BadRequest<GetUserModel>(ex.Message);
+            }
+        }
         public async Task<IComonResponse<List<GetUserModel>>> GetAllUsersAsync()
         {
             try
