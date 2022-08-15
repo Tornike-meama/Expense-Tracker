@@ -1,4 +1,5 @@
 using ExpenseTracker.DbContexts;
+using ExpenseTracker.Model;
 using ExpenseTracker.Options;
 using ExpenseTracker.Services.Currencies;
 using ExpenseTracker.Services.IdentityServices;
@@ -7,12 +8,15 @@ using ExpenseTracker.Services.TransactionTypes;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace ExpenseTracker
@@ -37,7 +41,7 @@ namespace ExpenseTracker
             Configuration.Bind(nameof(jwtSettings), jwtSettings);
             services.AddSingleton(jwtSettings);
 
-            //services.AddScoped<IIdentityServices, IdentityServices>();
+            services.AddScoped<IIdentityServices, IdentityServices>();
 
             services.AddAuthentication(x =>
             {
@@ -58,15 +62,48 @@ namespace ExpenseTracker
                 };
             });
 
-            services.AddSwaggerGen(c =>
+            services.AddSwaggerGen(options =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "ExpenseTracker", Version = "v1" });
+                options.SwaggerDoc("v1", new OpenApiInfo { Title = "ExpenseTracker", Version = "v1" });
+
+                var security = new Dictionary<string, IEnumerable<string>>
+                {
+                    {"Bearer", new string[0]}
+                };
+
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Description = "JWT Authorization header using the bearer scheme",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey
+                });
+
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                    {
+                        {
+                            new OpenApiSecurityScheme
+                            {
+                                Reference = new OpenApiReference
+                                {
+                                    Type = ReferenceType.SecurityScheme,
+                                    Id = "Bearer"
+                                }
+                            },
+                            Array.Empty<string>()
+                        }
+                    });
             });
 
             //add services
             services.AddTransient<ITransactionServices, TransactionServices>();
             services.AddTransient<ITransactionTypesServices, TransactionTypesServices>();
             services.AddTransient<ICurrencyServices, CurrencyServices>();
+
+            //identity
+            services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+                .AddRoles<IdentityRole>()
+                .AddEntityFrameworkStores<MyDbContext>();
 
 
             //add DbContext
@@ -82,6 +119,12 @@ namespace ExpenseTracker
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ExpenseTracker v1"));
             }
+
+            app.UseCors(x => x
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .SetIsOriginAllowed(origin => true) // allow any origin
+                    .AllowCredentials()); // allow credentials
 
             app.UseHttpsRedirection();
 
