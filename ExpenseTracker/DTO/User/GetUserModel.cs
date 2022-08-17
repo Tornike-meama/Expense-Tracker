@@ -10,6 +10,7 @@ namespace ExpenseTracker.DTO.User
         public bool EmailConfirmed { get; set; }
         public string PhoneNumber { get; set; }
         public bool PhoneNumberConfirmed { get; set; }
+        public string AvatarUrl { get; set; }
         public List<string> UserRoles { get; set; }
 
     }

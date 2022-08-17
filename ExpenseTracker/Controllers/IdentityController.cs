@@ -1,4 +1,5 @@
 ﻿using ExpenseTracker.DTO.Identity;
+using ExpenseTracker.DTO.User;
 using ExpenseTracker.Services.IdentityServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -27,6 +28,11 @@ namespace ExpenseTracker.Controllers
         [HttpPost]
         [Route("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request) => DataResponse(await _identityServices.LoginAsync(request.Email, request.Password));
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpPost]
+        [Route("updateCurrentUser")]
+        public async Task<IActionResult> UpdateCurrentUser([FromForm] UpdateCurrentUserModel data) => DataResponse(await _identityServices.UpdatedCurrentuserAsync(User.FindFirstValue(ClaimTypes.NameIdentifier), data));
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet]

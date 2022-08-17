@@ -119,6 +119,7 @@ namespace ExpenseTracker.Services.IdentityServices
                     EmailConfirmed = user.EmailConfirmed,
                     PhoneNumber = user.PhoneNumber,
                     PhoneNumberConfirmed = user.PhoneNumberConfirmed,
+                    AvatarUrl = user.AvatarUrl,
                     //UserRoles = userRoleIds
                 };
 
@@ -176,6 +177,7 @@ namespace ExpenseTracker.Services.IdentityServices
                     EmailConfirmed = user.EmailConfirmed,
                     PhoneNumber = user.PhoneNumber,
                     PhoneNumberConfirmed = user.PhoneNumberConfirmed,
+                    AvatarUrl = user.AvatarUrl,
                     UserRoles = userRoleIds
                 };
 
@@ -242,6 +244,8 @@ namespace ExpenseTracker.Services.IdentityServices
                     return new BadRequest<UpdateCurrentUserModel>("user not found");
                 }
 
+                var avatarUrl = currentUser.AvatarUrl;
+
                 if(data.Avatar.Length > 0)
                 {
                     var directoryPath = Path.Combine(_webHostEnvironment.ContentRootPath, "UploadFiles");
@@ -250,7 +254,16 @@ namespace ExpenseTracker.Services.IdentityServices
                     {
                         data.Avatar.CopyTo(stream);
                     }
+                    avatarUrl = $"https://localhost:44353/UploadFiles/{data.Avatar.FileName}";
                 }
+
+                currentUser.UserName = data.UserName;
+                currentUser.Email = data.Email;
+                currentUser.PhoneNumber = data.PhoneNumber;
+                currentUser.AvatarUrl = avatarUrl;
+
+                _dbContext.SaveChanges();
+
                 return new ComonResponse<UpdateCurrentUserModel>(data);
             }
             catch (Exception ex)
