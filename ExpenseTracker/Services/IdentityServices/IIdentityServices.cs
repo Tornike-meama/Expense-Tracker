@@ -10,7 +10,7 @@ namespace ExpenseTracker.Services.IdentityServices
         public Task<IComonResponse<string>> RegisterAsync(string email, string password, string name);
         public Task<IComonResponse<string>> LoginAsync(string email, string password);
         public Task<IComonResponse<GetUserModel>> GetuserDataAsync(string userId);
-
+        public Task<IComonResponse<UpdateCurrentUserModel>> UpdatedCurrentuserAsync(string userId, UpdateCurrentUserModel data);
         public Task<IComonResponse<List<GetUserModel>>> GetAllUsersAsync();
         public Task<IComonResponse<GetUserModel>> GetUserByIdAsync(string id);
     }

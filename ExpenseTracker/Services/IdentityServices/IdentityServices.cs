@@ -4,12 +4,14 @@ using ExpenseTracker.DTO.User;
 using ExpenseTracker.Model;
 using ExpenseTracker.Models;
 using ExpenseTracker.Options;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
@@ -19,16 +21,19 @@ namespace ExpenseTracker.Services.IdentityServices
 {
     public class IdentityServices : IIdentityServices
     {
+        private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly JwtSettings _jwtSettings;
         private readonly MyDbContext _dbContext;
 
         public IdentityServices(
+                IWebHostEnvironment webHostEnvironment,
                 UserManager<ApplicationUser> userManager,
                 JwtSettings jwtSettings,
                 MyDbContext dbContext
                )
         {
+            _webHostEnvironment = webHostEnvironment;
             _userManager = userManager;
             _jwtSettings = jwtSettings;
             _dbContext = dbContext;
@@ -226,5 +231,32 @@ namespace ExpenseTracker.Services.IdentityServices
             return new AuthResponse<string>(tokenHandler.WriteToken(token), "Success Loged In");
         }
 
+        public async Task<IComonResponse<UpdateCurrentUserModel>> UpdatedCurrentuserAsync(string userId, UpdateCurrentUserModel data)
+        {
+            try
+            {
+                var currentUser = await _dbContext.Users.FirstOrDefaultAsync(o => o.Id == userId);
+
+                if(currentUser == null)
+                {
+                    return new BadRequest<UpdateCurrentUserModel>("user not found");
+                }
+
+                if(data.Avatar.Length > 0)
+                {
+                    var directoryPath = Path.Combine(_webHostEnvironment.ContentRootPath, "UploadFiles");
+                    var filePath = Path.Combine(directoryPath, data.Avatar.FileName);
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        data.Avatar.CopyTo(stream);
+                    }
+                }
+                return new ComonResponse<UpdateCurrentUserModel>(data);
+            }
+            catch (Exception ex)
+            {
+                return new BadRequest<UpdateCurrentUserModel>(ex.Message);
+            }
+        }
     }
 }
