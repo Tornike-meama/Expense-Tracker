@@ -246,7 +246,7 @@ namespace ExpenseTracker.Services.IdentityServices
 
                 var avatarUrl = currentUser.AvatarUrl;
 
-                if(data.Avatar.Length > 0)
+                if(data?.Avatar?.Length > 0)
                 {
                     var directoryPath = Path.Combine(_webHostEnvironment.ContentRootPath, "UploadFiles");
                     var filePath = Path.Combine(directoryPath, data.Avatar.FileName);
@@ -255,6 +255,13 @@ namespace ExpenseTracker.Services.IdentityServices
                         data.Avatar.CopyTo(stream);
                     }
                     avatarUrl = $"https://localhost:44353/UploadFiles/{data.Avatar.FileName}";
+                } else if(data.DeleteAvatar && !string.IsNullOrEmpty(avatarUrl))
+                {
+                    var directoryPath = Path.Combine(_webHostEnvironment.ContentRootPath, "UploadFiles");
+                    var fileName = avatarUrl.Split('/')[avatarUrl.Split('/').Length-1];
+                    var filePath = Path.Combine(directoryPath, fileName);
+                    File.Delete(filePath);
+                    avatarUrl = "";
                 }
 
                 currentUser.UserName = data.UserName;
