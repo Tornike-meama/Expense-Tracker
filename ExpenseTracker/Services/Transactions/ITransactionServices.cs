@@ -9,7 +9,8 @@ namespace ExpenseTracker.Services.Transactions
     public interface ITransactionServices
     {
         public Task<IComonResponse<List<Transaction>>> GetAllTransactionAsync();
-        public Task<IComonResponse<AddTransactionModel>> AddTransactionAsync(AddTransactionModel data);
+        public Task<IComonResponse<AddTransactionModel>> AddTransactionAsync(AddTransactionModel data, string userId);
         public Task<IComonResponse<UpdateTransactionModel>> UpdateTransactionAsync(UpdateTransactionModel data);
+        public Task<IComonResponse<List<Transaction>>> GetAllTransactionsForCurrentUsetAsync(string userid);
     }
 }

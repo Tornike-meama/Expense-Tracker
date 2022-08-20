@@ -5,6 +5,9 @@ namespace ExpenseTracker.Model
     public class Transaction
     {
         public int Id { get; set; }
+        [ForeignKey("User")]
+        public string UserId { get; set; }
+        public ApplicationUser User { get; set; }
         [Column(TypeName = "decimal(5, 2)")]
         public decimal Amount { get; set; }
         public bool IsIncome { get; set; }
